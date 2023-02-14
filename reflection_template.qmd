@@ -19,10 +19,11 @@ execute:
 
 **WD-1: I can import data from a *variety* of formats (e.g., csv, xlsx, txt, etc.).**
 
--   `csv`
+-   `csv: Lab 2 Q1`
 
 ```{r wd-1-csv}
 
+surveys <- read_csv(here("Week 2", "surveys.csv"))
 ```
 
 -   `xlsx`
@@ -39,15 +40,34 @@ execute:
 
 **WD-2: I can select necessary columns from a dataset.**
 
+Lab 3 Q9
+
 ```{r wd-2}
 
+hiphop_clean |>
+  distinct(subj, .keep_all = TRUE) |>
+  select(sex, age, ethnic) |>
+  summary()
 ```
 
 **WD-3: I can filter rows from a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
 
 -   numeric
+-   Lab 3 Q11
 
 ```{r wd-3-numeric}
+
+belowtwenty <- hiphop_clean |>
+  filter(age < 20)|>
+  mutate(familiarity = as.numeric(familiarity)) |>
+  group_by(word) |>
+  summarize(mean_familiarity = mean(familiarity))
+
+belowtwenty |>
+  slice_max(mean_familiarity)
+  
+belowtwenty |>
+  slice_min(mean_familiarity)
 
 ```
 
@@ -58,23 +78,54 @@ execute:
 ```
 
 -   factor
+-   Lab 3 Q12
 
 ```{r wd-3-factor}
 
+non_white_women <- hiphop_clean |>
+  filter(ethnic == "Non-White" & sex == "Female")|>
+  mutate(familiarity = as.numeric(familiarity))|>
+  group_by(word) |>
+  summarize(mean_familiarity = mean(familiarity))
 ```
 
 -   date
+-   Practice Act 5.1 Q3
 
 ```{r wd-3-date}
 
+thanks <- ymd("2018-11-22")
+
+time_frame <- (thanks - days(35)) %--% (thanks + days(35))
+
+suspects <- suspects %>%
+  filter(Time.Spotted %within% time_frame)
 ```
 
 **WD-4: I can modify existing variables and create new variables in a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
 
 -   numeric
+-   Lab 4 Q6
 
 ```{r wd-4-numeric}
 
+
+avocado_ca <- avocado_clean |>
+  filter(region == c("LosAngeles",
+                    "SanDiego",
+                    "Sacramento",
+                    "SanFrancisco")
+         ) |>
+  group_by(region, type) |>
+  summarize(
+    avg_price = mean(AveragePrice)
+    ) |>
+  pivot_wider(names_from = type, 
+              values_from = avg_price) |>
+  mutate(diff = organic - conventional)
+
+avocado_ca |>
+  summary()
 ```
 
 -   character -- specifically a string
@@ -84,15 +135,24 @@ execute:
 ```
 
 -   factor
+-   Lab 3 Q7
 
 ```{r wd-4-factor}
 
+hiphop_clean <- hiphop_clean|>
+  mutate(ethnic = case_when(ethnic == "white" ~ "white", 
+                            TRUE ~ "non-white"), 
+                            ethnic = as.factor(ethnic))
 ```
 
 -   date
+-   Practice Act 5.1 Q4
 
 ```{r wd-4-date}
 
+suspects <- suspects %>%
+  mutate(iceland_time = with_tz(Time.Spotted, tz = "Etc/Greenwich")) %>%
+  filter(pm(iceland_time))
 ```
 
 **WD-5: I can use mutating joins to combine multiple dataframes.**
@@ -104,9 +164,11 @@ execute:
 ```
 
 -   `right_join()`
+-   Preview Act 4.3
 
 ```{r wd-5-right}
 
+right_join(prof_info, prof_course)
 ```
 
 -   `inner_join()`
@@ -116,37 +178,81 @@ execute:
 ```
 
 -   `full_join()`
+-   Challenge 4
 
 ```{r wd-5-full}
 
+avocado_ca2 <- avocado_clean |>
+  filter(region == c("LosAngeles",
+                    "SanDiego",
+                    "Sacramento",
+                    "SanFrancisco")) |>
+  full_join(house_price, by = c("region", "year"))
 ```
 
 **WD-6: I can use filtering joins to filter rows from a dataframe.**
 
 -   `semi_join()`
+-   Lab 4 Q2
 
 ```{r wd-6-semi}
 
+avocado_regions <- avocado |>
+  semi_join(regions, by = "region")
 ```
 
 -   `anti_join()`
+-   Lab 4 Q2
 
 ```{r wd-6-anti}
+
+avocado_clean <- avocado |>
+  anti_join(regions, by = "region") |>
+  anti_join(states, by = "region") |>
+  anti_join(total, by = "region")
 
 ```
 
 **WD-7: I can pivot dataframes from long to wide and visa versa**
 
 -   `pivot_longer()`
+-   Lab 4 Q7
 
 ```{r wd-7-long}
 
+avocado_ca2 <- avocado_clean |>
+  filter(region == c("LosAngeles",
+                    "SanDiego",
+                    "Sacramento",
+                    "SanFrancisco")) |>
+  pivot_longer(cols = c(`Small/medium`, Large, Xlarge),
+               names_to = "Size",
+               values_to = "amount") |>
+  group_by(region, Size, type) |>
+  summarize(avg_amount = mean(amount)) |>
+  group_by(region, type) |>
+  mutate(total = sum(avg_amount)) |>
+  mutate(prop = avg_amount/total)
 ```
 
 -   `pivot_wider()`
+-   Lab 4 Q6
 
 ```{r wd-7-wide}
 
+avocado_ca <- avocado_clean |>
+  filter(region == c("LosAngeles",
+                    "SanDiego",
+                    "Sacramento",
+                    "SanFrancisco")
+         ) |>
+  group_by(region, type) |>
+  summarize(
+    avg_price = mean(AveragePrice)
+    ) |>
+  pivot_wider(names_from = type, 
+              values_from = avg_price) |>
+  mutate(diff = organic - conventional)
 ```
 
 ## Reproducibility
@@ -155,11 +261,14 @@ execute:
 
 I've done this in the following provided assignments:
 
+Lab 2, Lab, 3, Lab 4, Challenge 4
+
 **R-2: I can write well documented and tidy code.**
 
 -   Example 1
 
 ```{r r-2-1}
+
 
 ```
 
