@@ -27,15 +27,23 @@ surveys <- read_csv(here("Week 2", "surveys.csv"))
 ```
 
 -   `xlsx`
+-   Practice Act 4
 
 ```{r wd-1-xlsx}
 
+military <- read_xlsx(here::here("gov_spending_per_capita.xlsx"), 
+                      sheet = "Share of Govt. spending", 
+                      skip = 7, 
+                      n_max = 198)
 ```
 
 -   `txt`
+-   Practice Act 5.2
 
 ```{r wd-1-txt}
 
+message <- read_csv(here::here("Week 5", "scrambled_message.txt")
+                      )
 ```
 
 **WD-2: I can select necessary columns from a dataset.**
@@ -175,6 +183,7 @@ right_join(prof_info, prof_course)
 
 ```{r wd-5-inner}
 
+
 ```
 
 -   `full_join()`
@@ -266,30 +275,57 @@ Lab 2, Lab, 3, Lab 4, Challenge 4
 **R-2: I can write well documented and tidy code.**
 
 -   Example 1
+-   Lab 4 Q2
 
 ```{r r-2-1}
 
-
+avocado <- avocado |>
+  rename("Small/medium" = "4046", "Large" = "4225", "Xlarge" = "4770")
 ```
 
 -   Example 2
+-   Challenge 4
 
 ```{r r-2-2}
 
+ggplot(data = avocado_ca2, mapping = aes(x = years, y = region)) +
+   geom_density_ridges(fill = "cadetblue") +
+   labs(x = "Number of Years to Save Up", 
+        y = "City",
+        title = "How Long it Will Take to Save for a House")
 ```
 
 **R-3: I can write robust programs that are resistant to changes in inputs.**
 
 -   Example 1
+-   Lab 3 Q11
 
 ```{r r-3-1}
 
+belowtwenty <- hiphop_clean |>
+  filter(age < 20)|>
+  mutate(familiarity = as.numeric(familiarity)) |>
+  group_by(word) |>
+  summarize(mean_familiarity = mean(familiarity))
+
+belowtwenty |>
+  slice_max(mean_familiarity)
+  
+belowtwenty |>
+  slice_min(mean_familiarity)
 ```
 
 -   Example 2
+-   Lab 4 Q4
 
 ```{r r-3-2}
 
+avocado_clean <- avocado_clean |>
+  separate("Date", into = c("year", "month", "day"), sep = "-")
+  
+avocado_clean |>  
+  slice_max(`Total Volume`) |>
+  pull(month)
 ```
 
 ## Data Visualization & Summarization
@@ -297,83 +333,262 @@ Lab 2, Lab, 3, Lab 4, Challenge 4
 **DVS-1: I can create visualizations for a *variety* of variable types (e.g., numeric, character, factor, date)**
 
 -   numeric variables
+-   Challenge 1
 
 ```{r dvs-1-num}
 
+plot(pressure, xlab = ' Temperature (deg C)', ylab = 'Pressure (mm)')
 ```
 
 -   numeric variables and categorical variables
+-   Challenge 4
 
 ```{r dvs-2-num-cat}
 
+ggplot(data = avocado_ca2, mapping = aes(x = years, y = region)) +
+   geom_density_ridges(fill = "cadetblue") +
+   labs(x = "Number of Years to Save Up", 
+        y = "City",
+        title = "How Long it Will Take to Save for a House")
 ```
 
 -   categorical variables
+-   Lab 5, Captures over the Week Q2
 
 ```{r dvs-2-cat}
 
+# Source for how to rearrange the weekdays: https://www.reddit.com/r/rprogramming/comments/ue3aa0/ggplot_inquiry_how_can_i_arrange_weekdays_to/
+
+surveys2 <- surveys |>
+  mutate(day_of_week = as.factor(day_of_week), 
+         day_of_week = fct_relevel(day_of_week, 
+                                   "Mon", "Tue", "Wed",
+                                      "Thu", "Fri", "Sat", 
+                                      "Sun"))
+
+  
+
+ggplot(data = surveys2, mapping = aes(x = day_of_week)) +  
+  geom_bar() + 
+  labs(x = "Day of Week", y = " ", 
+       title = "Number of Rodents Captured by Day")
 ```
 
 -   dates
 
 ```{r dvs-2-date}
 
+surveys1 <- surveys |>
+  group_by(genus, year) |>
+  mutate(mean_weight = mean(weight))
+
+ggplot(data = surveys1, mapping = aes(x = year, 
+                                     y = mean_weight,
+                                     color = fct_reorder(genus, 
+                                                         mean_weight, .desc = TRUE))) +  
+  geom_line(stat = "identity") +
+  labs(x = "Year", y = " ",
+       title = "Time Series Genus of Rodent by Weight(grams)",
+       col = "Genus")
 ```
 
 **DVS-2: I use plot modifications to make my visualization clear to the reader.**
 
 -   Example 1
+-   Lab 4 Q7
 
 ```{r dvs-2-1}
+
+avocado_ca2 <- avocado_clean |>
+  filter(region == c("LosAngeles",
+                    "SanDiego",
+                    "Sacramento",
+                    "SanFrancisco")) |>
+  pivot_longer(cols = c(`Small/medium`, Large, Xlarge),
+               names_to = "Size",
+               values_to = "amount") |>
+  group_by(region, Size, type) |>
+  summarize(avg_amount = mean(amount)) |>
+  group_by(region, type) |>
+  mutate(total = sum(avg_amount)) |>
+  mutate(prop = avg_amount/total)
+
+ggplot(data = avocado_ca2,
+       mapping = aes(x = region,
+                     y = prop, 
+                     fill = factor(Size,
+                            levels = c("Small/medium",
+                                       "Large",
+                                       "Xlarge")))) +
+  facet_wrap(~type) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c("#a6cee3",
+                               "#1f78b4", 
+                               "#b2df8a")) +
+  scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
+  labs(x = "Region of CA",
+       y = "Proportion of Mean Avocados Sold", 
+       title = "Size of Avocados Sold by City",
+       fill = "Size")
 
 ```
 
 -   Example 2
+-   Challenge 4
 
 ```{r dvs-2-2}
 
+ggplot(data = avocado_ca2, mapping = aes(x = years, y = region)) +
+   geom_density_ridges(fill = "cadetblue") +
+   labs(x = "Number of Years to Save Up", 
+        y = "City",
+        title = "How Long it Will Take to Save for a House")
 ```
 
 **DVS-3: I show creativity in my visualizations**
 
 -   Example 1
+-   Challenge 4
 
 ```{r dvs-3-1}
 
+ggplot(data = avocado_ca2, mapping = aes(x = years, y = region)) +
+   geom_density_ridges(fill = "cadetblue") +
+   labs(x = "Number of Years to Save Up", 
+        y = "City",
+        title = "How Long it Will Take to Save for a House")
 ```
 
 -   Example 2
+-   Lab 4 Q6
 
 ```{r dvs-3-2}
 
+avocado_ca <- avocado_clean |>
+  filter(region %in% c("LosAngeles",
+                    "SanDiego",
+                    "Sacramento",
+                    "SanFrancisco")
+         ) |>
+  group_by(region, type) |>
+  summarize(
+    avg_price = mean(AveragePrice), .groups = "drop"
+    ) |>
+  pivot_wider(names_from = type, 
+              values_from = avg_price) |>
+  mutate(diff = organic - conventional)
+
+avocado_ca
+
+
+ggplot(data = avocado_ca, mapping = aes(x = diff, y = region)) +
+  geom_segment(aes(xend = 0, yend = region)) +
+  geom_point() +
+  labs(x = "California City", 
+       y = "Price Difference($)",
+         title = "Organic v Conventional Avocado Price Difference by City")
 ```
 
 **DVS-4: I can calculate numerical summaries of variables.**
 
 -   Example 1
+-   Lab 3 Q11
 
 ```{r dvs-4-1}
 
+belowtwenty <- hiphop_clean |>
+  filter(age < 20)|>
+  mutate(familiarity = as.numeric(familiarity)) |>
+  group_by(word) |>
+  summarize(mean_familiarity = mean(familiarity))
+
+belowtwenty |>
+  slice_max(mean_familiarity)
+  
+belowtwenty |>
+  slice_min(mean_familiarity)
 ```
 
 -   Example 2
+-   Lab 4 Q5
 
 ```{r dvs-4-2}
 
+options(scipen = 999)
+
+top_5 <- avocado_clean |>
+  group_by(region) |>
+  summarize(avg_vol = mean(`Total Volume`)) |>
+  slice_max(avg_vol, n = 5)
+
+avocado_clean |>
+  semi_join(top_5, by = "region") |>
+  ggplot(mapping = aes(x = `Total Volume`,
+                                   y = region)) +
+  geom_boxplot(fill = "lightpink") +
+  labs(x = "Total Volume", y = "Metro Area Regions", title = "Total Avocado Volume by Region")
 ```
 
 **DVS-5: I can find summaries of variables across multiple groups.**
 
 -   Example 1
+-   Challenge 3
 
 ```{r dvs-5-1}
 
+newhiphop <- hiphop_clean |>
+  select(c(sex, ethnic, intl:unclassifiable))
+
+newhiphop_sex <- newhiphop |>
+  group_by(sex) |>
+  summarise(
+    across(
+      intl:unclassifiable, 
+      mean, 
+      na.rm = TRUE
+      )
+    )
+    
+newhiphop_sex <- newhiphop_sex |>
+  summarise(
+    abs(
+    across(
+      intl:unclassifiable,
+      diff, na.rm = TRUE
+    )
+  )
+  )
+newhiphop_sex |>
+  which.max()
 ```
 
 -   Example 2
+-   Challenge 3
 
 ```{r dvs-5-2}
 
+newhiphop_ethnic <- newhiphop |>
+  group_by(ethnic) |>
+  summarise(
+    across(
+      intl:unclassifiable, 
+      mean, 
+      na.rm = TRUE
+      )
+    )
+
+newhiphop_ethnic <- newhiphop_ethnic |>
+  summarise(
+    abs(
+    across(
+      intl:unclassifiable,
+      diff, na.rm = TRUE
+    )
+  )
+  )
+
+newhiphop_ethnic |>
+  which.max()
 ```
 
 **DVS-6: I can create tables which make my summaries clear to the reader.**
@@ -382,12 +597,14 @@ Lab 2, Lab, 3, Lab 4, Challenge 4
 
 ```{r dvs-6-1}
 
+# Have not learned yet
 ```
 
 -   Example 2
 
 ```{r dvs-6-2}
 
+# Have not learned yet
 ```
 
 **DVS-7: I show creativity in my tables.**
@@ -395,13 +612,14 @@ Lab 2, Lab, 3, Lab 4, Challenge 4
 -   Example 1
 
 ```{r dvs-7-1}
-
+# Have not learned yet
 ```
 
 -   Example 2
 
 ```{r dvs-7-2}
 
+#Have not learned yet
 ```
 
 ## Program Efficiency
@@ -409,21 +627,50 @@ Lab 2, Lab, 3, Lab 4, Challenge 4
 **PE-1: I can write concise code which does not repeat itself.**
 
 -   using a single function call
+-   Lab 4 Q2
 
 ```{r pe-1-one-call}
 
+avocado <- avocado |>
+  rename("Small/medium" = "4046", "Large" = "4225", "Xlarge" = "4770")
 ```
 
 -   `across()`
+-   Challenge 3
 
 ```{r pe-1-across}
 
+newhiphop <- hiphop_clean |>
+  select(c(sex, ethnic, intl:unclassifiable))
+
+newhiphop_sex <- newhiphop |>
+  group_by(sex) |>
+  summarise(
+    across(
+      intl:unclassifiable, 
+      mean, 
+      na.rm = TRUE
+      )
+    )
+    
+newhiphop_sex <- newhiphop_sex |>
+  summarise(
+    abs(
+    across(
+      intl:unclassifiable,
+      diff, na.rm = TRUE
+    )
+  )
+  )
+newhiphop_sex |>
+  which.max()
 ```
 
 -   `map()` functions
 
 ```{r pe-1-map-1}
 
+# Have not learned yet
 ```
 
 **PE-2: I can write functions to reduce repetition in my code.**
@@ -432,43 +679,118 @@ Lab 2, Lab, 3, Lab 4, Challenge 4
 
 ```{r pe2-1}
 
+# Have not learned yet
 ```
 
 -   Example 2
 
 ```{r pe2-2}
 
+# Have not learned yet
 ```
 
 **PE-3:I can use iteration to reduce repetition in my code.**
 
 -   `across()`
+-   Challenge 3
 
 ```{r pe-3-across}
 
+newhiphop_ethnic <- newhiphop |>
+  group_by(ethnic) |>
+  summarise(
+    across(
+      intl:unclassifiable, 
+      mean, 
+      na.rm = TRUE
+      )
+    )
+
+newhiphop_ethnic <- newhiphop_ethnic |>
+  summarise(
+    abs(
+    across(
+      intl:unclassifiable,
+      diff, na.rm = TRUE
+    )
+  )
+  )
+
+newhiphop_ethnic |>
+  which.max()
 ```
 
 -   `map()` functions (Provide 2 Examples)
 
 ```{r pe-3-map-1}
 
+# Have not learned yet
 ```
 
 ```{r pe-3-map-2}
 
+# Have not learned yet
 ```
 
 **PE-4: I can use modern tools when carrying out my analysis.**
 
 -   Example 1
+-   Challenge 3
 
 ```{r pe-4-1}
 
+newhiphop_ethnic <- newhiphop |>
+  group_by(ethnic) |>
+  summarise(
+    across(
+      intl:unclassifiable, 
+      mean, 
+      na.rm = TRUE
+      )
+    )
+
+newhiphop_ethnic <- newhiphop_ethnic |>
+  summarise(
+    abs(
+    across(
+      intl:unclassifiable,
+      diff, na.rm = TRUE
+    )
+  )
+  )
+
+newhiphop_ethnic |>
+  which.max()
 ```
 
 -   Example 2
+-   Lab 4 Q6
 
 ```{r pe-4-2}
+
+avocado_ca <- avocado_clean |>
+  filter(region %in% c("LosAngeles",
+                    "SanDiego",
+                    "Sacramento",
+                    "SanFrancisco")
+         ) |>
+  group_by(region, type) |>
+  summarize(
+    avg_price = mean(AveragePrice), .groups = "drop"
+    ) |>
+  pivot_wider(names_from = type, 
+              values_from = avg_price) |>
+  mutate(diff = organic - conventional)
+
+avocado_ca
+
+
+ggplot(data = avocado_ca, mapping = aes(x = diff, y = region)) +
+  geom_segment(aes(xend = 0, yend = region)) +
+  geom_point() +
+  labs(x = "California City", 
+       y = "Price Difference($)",
+         title = "Organic v Conventional Avocado Price Difference by City")
 
 ```
 
@@ -480,12 +802,14 @@ Lab 2, Lab, 3, Lab 4, Challenge 4
 
 ```{r dsm-1-1}
 
+# Have not learned yet
 ```
 
 -   Example 2
 
 ```{r dsm-1-2}
 
+# Have not learned yet
 ```
 
 **DSM-2: I can fit a linear regression and extract necessary summary measures.**
@@ -494,12 +818,14 @@ Lab 2, Lab, 3, Lab 4, Challenge 4
 
 ```{r dsm-2-1}
 
+# Have not learned yet
 ```
 
 -   Example 2
 
 ```{r dsm-2-2}
 
+# Haeve not learned yet
 ```
 
 ## Revising My Thinking
