@@ -34,7 +34,7 @@ surveys <- read_csv(here("Week 2", "surveys.csv"))
 military <- read_xlsx(here::here("gov_spending_per_capita.xlsx"), 
                       sheet = "Share of Govt. spending", 
                       skip = 7, 
-                      n_max = 198)
+                      n_max = 190)
 ```
 
 -   `txt`
@@ -82,6 +82,7 @@ belowtwenty |>
 -   character -- specifically a string
 
 ```{r wd-3-string}
+
 
 ```
 
@@ -137,9 +138,11 @@ avocado_ca |>
 ```
 
 -   character -- specifically a string
+-   Practice Act 5.2
 
 ```{r wd-4-string}
 
+word <- str_replace_all(word, pattern = "aa", replace = "ee")
 ```
 
 -   factor
@@ -825,17 +828,25 @@ ggplot(data = avocado_ca, mapping = aes(x = diff, y = region)) +
 
 ```{r dsm-2-2}
 
-# Haeve not learned yet
+# Have not learned yet
 ```
 
 ## Revising My Thinking
 
 <!-- How did you revise your thinking throughout the course? How did you revise your thinking on the code examples you have provided in your portfolio? -->
 
+For week 1 and week 2 I have taken the feedback given to me on the lab and challenges and resubmitted it for a complete if any questions have an incomplete on it. I also have re-submitted the week 3, 4, and 5 labs and I just have one question to correct on lab 3. I have looked over the feedback I have received and incorporated it into future labs at any points possible to make sure I do not make the same mistake again. For example, before resubmitting Lab 4 I changed my bar plot to a Cleveland dot plot because that data was differences not counts. I also read the feedback from the peer reviews and have taken what they have said into account. I think that I have revised my thinking on the code examples that I have provided in my portfolio because most of the examples I figured out on my second try and I needed to shift my way of thinking to get my code to be as efficient and tidy as it can be.
+
 ## Extending My Thinking
 
 <!-- How did you extended your thinking throughout the course? How did you extend your thinking on the code examples you have provided in your portfolio? -->
 
+For week 1 and week 2 I do not think I went above and beyond with external sources because it was not until week 3 that we as a class set up the expectations for what an A is in this class. For Lab 3 I did not make use of external research so I knew for lab 4 I really needed to go above and beyond and use external research, which is exactly what I did. I first brought back what I learned in challenge 1 and changed the font of the entire html file to "garet", and I did this for both lab 4 and challenge 4. For lab 4 I also used external research to find what the avocado code names mean to clean my data, stopped my graph from using scientific notation because I thought it made my graph look more tidy, did outside research to figure out why my bar chart was not running, I changed the order of my legend, the color of my graph, and staggered the labels on my axis so they did not overlap. For challenge 4 I found data online from Zillow and created an excel file from this data to join together with the avocado data. In addition I used density plots which was extending my thinking from challenge 2. I think that I have demonstrated a commitment to continued learning because I have added in many extra pieces to my lab 4 and challenge 4 to make up for not extending my thinking as much as I could have in lab 3. While extending my thinking it required me to learn more about different functions. For lab 5 I extended my thinking because I did outside research on the forcats library and how to use different functions like fct_reorder(), fct_relevel(), and fct_collapse(). Many of the examples I included in this portfolio are from code chunks where I extended my thinking.
+
 ## Peer Support & Collaboration
 
 <!-- Include an image of feedback you gave that you are proud of (either in a peer review or in Discord) -->
+
+![](images/image-1621592884.png){width="271"}
+
+![](images/image-1441920820.png){width="266"}
