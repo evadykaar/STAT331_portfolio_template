@@ -177,7 +177,7 @@ suspects <- suspects %>%
 ```
 
 -   `right_join()`
--   Preview Act 4.3
+-   Preview Act 4.3 Q1
 
 ```{r wd-5-right}
 
@@ -396,6 +396,7 @@ ggplot(data = surveys2, mapping = aes(x = day_of_week)) +
 ```
 
 -   dates
+-   Lab 5 Time series plot Q4
 
 ```{r dvs-2-date}
 
@@ -868,3 +869,5 @@ For week 1 and week 2 I do not think I went above and beyond with external sourc
 ![](images/image-1621592884.png){width="271"}
 
 ![](images/image-1441920820.png){width="266"}
+
+Images also included under the supporting artifacts.
