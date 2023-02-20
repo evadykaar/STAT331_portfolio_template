@@ -1,0 +1,75 @@
+---
+title: "PA 5.2 try 2"
+author: "Eva"
+format: 
+  html: 
+    self-contained: true
+    code-tools: true
+editor: visual
+execute: 
+  echo: true
+  include: true
+  message: false
+  warning: false
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+message <- read_csv(here::here("Week 5", "scrambled_message.txt")
+                      )
+```
+
+```{r}
+word <- str_trim(word, side = c("both"))
+word <- str_to_lower(word)
+word
+
+```
+
+```{r}
+word <- str_sub(word, 0, 16)
+
+```
+
+Any time you see the word "ugh", with any number of h's, followed by a punctuation mark, delete this.
+
+```{r}
+word <- str_remove_all(word, pattern = "ugh*[:punct:]")
+
+```
+
+Replace all instances of exactly 2 a's with exactly 2 e's.
+
+```{r}
+word <- str_replace_all(word, pattern = "aa", replace = "ee")
+
+```
+
+Replace all z's with t's.
+
+```{r}
+word <- str_replace_all(word, pattern = "z", replace = "t")
+```
+
+Every word that ends in b, change that to a y.
+
+```{r}
+word <- str_replace_all(word, pattern = "b$", replace = "y")`
+```
+
+Every word that starts with k, change that to a v.
+
+```{r}
+word <- str_replace_all(word, pattern = "^k", replace = "v")
+
+```
+
+Use str_c() to recombine all your words into a message.
+
+```{r}
+word <- str_c(word)
+word
+```
