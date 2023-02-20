@@ -11,7 +11,7 @@ execute:
   echo: true
 ---
 
-[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an \_\_.
+[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an \_A\_.
 
 [**Learning Objective Evidence:**]{.underline} In the code chunks below, provide code from a Lab or Challenge assignment where you believe you have demonstrated proficiency with the specified learning target. Be sure to specify **where** the code came from (e.g., Lab 4 Question 2).
 
@@ -80,10 +80,11 @@ belowtwenty |>
 ```
 
 -   character -- specifically a string
+-   Practice Act 5.2
 
 ```{r wd-3-string}
 
-
+word <- str_remove_all(word, pattern = "ugh*[:punct:]")
 ```
 
 -   factor
@@ -172,6 +173,7 @@ suspects <- suspects %>%
 
 ```{r wd-5-left}
 
+
 ```
 
 -   `right_join()`
@@ -183,10 +185,17 @@ right_join(prof_info, prof_course)
 ```
 
 -   `inner_join()`
+-   challenge 4
 
 ```{r wd-5-inner}
+ # origionally I used a full_join() in challenge 4 but I changed it to an inner_join() to show that I know how to use an inner_join() and I realized that this is normally a more severe method of joining data sets but because the data set I compiled included all the years and regions in the filtered avocado_clean() this did not change the data set from what the full_join() did.
 
-
+avocado_ca2 <- avocado_clean |>
+  filter(region == c("LosAngeles",
+                    "SanDiego",
+                    "Sacramento",
+                    "SanFrancisco")) |>
+  inner_join(house_price, by = c("region", "year"))
 ```
 
 -   `full_join()`
@@ -278,12 +287,21 @@ Lab 2, Lab, 3, Lab 4, Challenge 4
 **R-2: I can write well documented and tidy code.**
 
 -   Example 1
--   Lab 4 Q2
+-   Lab 3 Q12
 
 ```{r r-2-1}
 
-avocado <- avocado |>
-  rename("Small/medium" = "4046", "Large" = "4225", "Xlarge" = "4770")
+non_white_women <- hiphop_clean |>
+  filter(ethnic == "Non-White" & sex == "Female")|>
+  mutate(familiarity = as.numeric(familiarity))|>
+  group_by(word) |>
+  summarize(mean_familiarity = mean(familiarity))
+
+non_white_women |>
+  slice_max(mean_familiarity)
+  
+non_white_women |>
+  slice_min(mean_familiarity)
 ```
 
 -   Example 2
@@ -835,7 +853,7 @@ ggplot(data = avocado_ca, mapping = aes(x = diff, y = region)) +
 
 <!-- How did you revise your thinking throughout the course? How did you revise your thinking on the code examples you have provided in your portfolio? -->
 
-For week 1 and week 2 I have taken the feedback given to me on the lab and challenges and resubmitted it for a complete if any questions have an incomplete on it. I also have re-submitted the week 3, 4, and 5 labs and I just have one question to correct on lab 3. I have looked over the feedback I have received and incorporated it into future labs at any points possible to make sure I do not make the same mistake again. For example, before resubmitting Lab 4 I changed my bar plot to a Cleveland dot plot because that data was differences not counts. I also read the feedback from the peer reviews and have taken what they have said into account. I think that I have revised my thinking on the code examples that I have provided in my portfolio because most of the examples I figured out on my second try and I needed to shift my way of thinking to get my code to be as efficient and tidy as it can be.
+For the previous weeks I have taken the feedback given to me on the lab and challenges and resubmitted it for a complete if any questions have an incomplete on it. I also have re-submitted the week 3, 4, and 5 labs and I just have one question to correct on lab 3. I have looked over the feedback I have received and incorporated it into future labs at any points possible to make sure I do not make the same mistake again. For example, before resubmitting Lab 4 I changed my bar plot to a Cleveland dot plot because that data was differences not counts. I also read the feedback from the peer reviews and have taken what they have said into account. I think that I have revised my thinking on the code examples that I have provided in my portfolio because most of the examples I figured out on my second try and I needed to shift my way of thinking to get my code to be as efficient and tidy as it can be.
 
 ## Extending My Thinking
 
