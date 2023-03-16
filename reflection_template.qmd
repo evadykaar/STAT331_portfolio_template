@@ -84,7 +84,9 @@ belowtwenty |>
 
 ```{r wd-3-string}
 
-word <- str_remove_all(word, pattern = "ugh*[:punct:]")
+message %>% 
+  filter(str_detect(Word, pattern = "\\w")) %>% 
+  count() 
 ```
 
 -   factor
@@ -119,23 +121,22 @@ suspects <- suspects %>%
 
 ```{r wd-4-numeric}
 
-
 avocado_ca <- avocado_clean |>
-  filter(region == c("LosAngeles",
+  filter(region %in% c("LosAngeles",
                     "SanDiego",
                     "Sacramento",
                     "SanFrancisco")
          ) |>
   group_by(region, type) |>
   summarize(
-    avg_price = mean(AveragePrice)
+    avg_price = mean(AveragePrice), .groups = "drop"
     ) |>
   pivot_wider(names_from = type, 
               values_from = avg_price) |>
   mutate(diff = organic - conventional)
 
-avocado_ca |>
-  summary()
+avocado_ca
+
 ```
 
 -   character -- specifically a string
@@ -188,7 +189,7 @@ right_join(prof_info, prof_course)
 -   challenge 4
 
 ```{r wd-5-inner}
- # origionally I used a full_join() in challenge 4 but I changed it to an inner_join() to show that I know how to use an inner_join() and I realized that this is normally a more severe method of joining data sets but because the data set I compiled included all the years and regions in the filtered avocado_clean() this did not change the data set from what the full_join() did.
+ # originally I used a full_join() in challenge 4 but I changed it to an inner_join() to show that I know how to use an inner_join() and I realized that this is normally a more severe method of joining data sets but because the data set I compiled included all the years and regions in the filtered avocado_clean() this did not change the data set from what the full_join() did.
 
 avocado_ca2 <- avocado_clean |>
   filter(region == c("LosAngeles",
@@ -354,11 +355,16 @@ avocado_clean |>
 **DVS-1: I can create visualizations for a *variety* of variable types (e.g., numeric, character, factor, date)**
 
 -   numeric variables
--   Challenge 1
+-   Lab 9 Q6
 
 ```{r dvs-1-num}
 
-plot(pressure, xlab = ' Temperature (deg C)', ylab = 'Pressure (mm)')
+allison_f_lm |> 
+  broom::augment() |> 
+  ggplot(mapping = aes(y = .resid, x = .fitted)) +
+  geom_point(color = "navy") +
+  labs(x = "Fitted Values", y = "Residual Values", title = "Plotted Residuals vs Fitted values")
+
 ```
 
 -   numeric variables and categorical variables
@@ -422,7 +428,7 @@ ggplot(data = surveys1, mapping = aes(x = year,
 ```{r dvs-2-1}
 
 avocado_ca2 <- avocado_clean |>
-  filter(region == c("LosAngeles",
+  filter(region %in% c("LosAngeles",
                     "SanDiego",
                     "Sacramento",
                     "SanFrancisco")) |>
@@ -432,8 +438,8 @@ avocado_ca2 <- avocado_clean |>
   group_by(region, Size, type) |>
   summarize(avg_amount = mean(amount)) |>
   group_by(region, type) |>
-  mutate(total = sum(avg_amount)) |>
-  mutate(prop = avg_amount/total)
+  mutate(total = sum(avg_amount), 
+         prop = avg_amount/total)
 
 ggplot(data = avocado_ca2,
        mapping = aes(x = region,
@@ -508,7 +514,7 @@ ggplot(data = avocado_ca, mapping = aes(x = diff, y = region)) +
   geom_point() +
   labs(x = "California City", 
        y = "Price Difference($)",
-         title = "Organic v Conventional Avocado Price Difference by City")
+       title = "Organic v Conventional Avocado Price Difference by City")
 ```
 
 **DVS-4: I can calculate numerical summaries of variables.**
@@ -557,6 +563,7 @@ avocado_clean |>
 -   Challenge 3
 
 ```{r dvs-5-1}
+# revised to use the new syntax of across
 
 newhiphop <- hiphop_clean |>
   select(c(sex, ethnic, intl:unclassifiable))
@@ -564,9 +571,8 @@ newhiphop <- hiphop_clean |>
 newhiphop_sex <- newhiphop |>
   group_by(sex) |>
   summarise(
-    across(
-      intl:unclassifiable, 
-      mean, 
+    across(.cols = intl:unclassifiable, 
+      .fns = ~ mean(.x), 
       na.rm = TRUE
       )
     )
@@ -574,9 +580,8 @@ newhiphop_sex <- newhiphop |>
 newhiphop_sex <- newhiphop_sex |>
   summarise(
     abs(
-    across(
-      intl:unclassifiable,
-      diff, na.rm = TRUE
+    across(.cols = intl:unclassifiable,
+      .fns = ~ diff(.x), na.rm = TRUE
     )
   )
   )
@@ -588,13 +593,14 @@ newhiphop_sex |>
 -   Challenge 3
 
 ```{r dvs-5-2}
+# revised to use the new syntax of across
 
 newhiphop_ethnic <- newhiphop |>
   group_by(ethnic) |>
   summarise(
     across(
-      intl:unclassifiable, 
-      mean, 
+      .cols = intl:unclassifiable, 
+      .fns = ~ mean(.x), 
       na.rm = TRUE
       )
     )
@@ -603,8 +609,8 @@ newhiphop_ethnic <- newhiphop_ethnic |>
   summarise(
     abs(
     across(
-      intl:unclassifiable,
-      diff, na.rm = TRUE
+      .cols = intl:unclassifiable,
+      .fns = ~ diff(.x), na.rm = TRUE
     )
   )
   )
@@ -616,25 +622,57 @@ newhiphop_ethnic |>
 **DVS-6: I can create tables which make my summaries clear to the reader.**
 
 -   Example 1
+- Challenge 9 Q9
 
 ```{r dvs-6-1}
 
-# Have not learned yet
+allen |>
+  filter(Year == "2000", State %in% c("PA", "CA")) |>
+  pivot_wider(names_from = Name, values_from = Count, values_fill = 0) |>
+  select(State, Alan, Allen, Allan) |>
+  gt() |>
+  tab_header(title = "Number of Alan, Allen, or Allan by State")
+
 ```
 
 -   Example 2
+- Challenge 9 Q10
 
 ```{r dvs-6-2}
 
-# Have not learned yet
+allen |> 
+  filter(Year == "2000", State %in% c("PA", "CA")) |>
+  mutate(prop = Count / sum(Count)
+         ) |>
+  select(Sex, State, Name, prop) |>
+  pivot_wider(names_from = Name, values_from = prop, values_fill = 0) |>
+  gt() |>
+  tab_header(title = "Percentage of Alan, Allen, or Allan by State") |>
+  fmt_percent(columns = 3:5, decimals = 2)
+
 ```
 
 **DVS-7: I show creativity in my tables.**
 
 -   Example 1
+- Challenge 9 Q1
 
 ```{r dvs-7-1}
-# Have not learned yet
+
+names |>
+  filter(Name == "Allison") |>
+  group_by(State, Sex) |>
+  summarize(Count = sum(Count), .groups = "drop") |>
+  pivot_wider(names_from = Sex, values_from = Count, values_fill = 0) |>
+  knitr::kable(format = "html", 
+               digits = 3, 
+               col.names = 
+                 c("State", 
+                   "Female", 
+                   "Male"),
+               caption = "Number of People Named Allison by Sex and State") |>
+  kable_styling(font_size = 15, bootstrap_options = "striped")
+
 ```
 
 -   Example 2
@@ -689,10 +727,15 @@ newhiphop_sex |>
 ```
 
 -   `map()` functions
+- Lab 8 step 4: using the functions
 
 ```{r pe-1-map-1}
 
-# Have not learned yet
+song <- map_chr(.x = 1:12, 
+               .f = ~ sing_day(dataset = xmas2, num = .x, phrase_col = Full.Phrase))
+
+song
+
 ```
 
 **PE-2: I can write functions to reduce repetition in my code.**
@@ -743,10 +786,22 @@ newhiphop_ethnic |>
 ```
 
 -   `map()` functions (Provide 2 Examples)
+- Practice Activity part of Lab 8 (Test your function)
 
 ```{r pe-3-map-1}
 
-# Have not learned yet
+xmas2 <- xmas %>%
+  mutate(day.num = as.character(english::english(Day)),
+         
+    Full.Phrase = pmap_chr(.l = list(
+      day = Day,
+      num_word = day.num,
+      item = Gift.Item,
+      verb = Verb,
+      adjective = Adjective,
+      location = Location), 
+    .f = make_phrase)
+  )
 ```
 
 ```{r pe-3-map-2}
@@ -821,10 +876,28 @@ ggplot(data = avocado_ca, mapping = aes(x = diff, y = region)) +
 **DSM-1: I can simulate data from a *variety* of probability models.**
 
 -   Example 1
+-   Practice Act 9.2
 
 ```{r dsm-1-1}
 
-# Have not learned yet
+set.seed(1957)
+
+music_man <- function(n_tromb, n_cor, n_reed){
+  
+  trombones <- rnorm(n_tromb, mean = 4.6, sd = 0.8)
+  cornets <- runif(n_cor, min = 1.5, max = 3.5)
+  reeds <- rchisq(n_reed, df = 4)
+  
+  return(sum(c(trombones, cornets, reeds)))
+  
+}
+
+my_weights <- map_dbl(.x = 1:1000, 
+                      .f = ~ music_man(n_tromb = 76, 
+                                       n_cor = 110, 
+                                       n_reed = 1035)
+                      ) 
+sum(my_weights <4532)
 ```
 
 -   Example 2
