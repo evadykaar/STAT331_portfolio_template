@@ -1,0 +1,61 @@
+---
+title: "Challenge 1"
+execute:
+  echo: true
+author: "Eva Dykaar"
+format: 
+  html:
+    code-fold: true
+    self-contained: true
+    fig.cap: true
+mainfont: Roboto
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+# Cars Data set
+
+```{r}
+summary(cars)
+```
+
+*This dataset contains information about the speed of cars and the distances taken to stop. The data was collected in 1920s.*
+
+*It has 50 rows and 2 variables.*
+
+# Pressure v Temperature
+
+You can add options to executable code like this
+
+```{r, fig.align = 'center', fig.cap = 'Pressure Data Plot'}
+plot(pressure, xlab = ' Temperature (deg C)', ylab = 'Pressure (mm)')
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+# Data Plots
+
+```{r}
+#| layout-ncol: 2
+dist <- cars[ , 2]
+speed <- cars[ , 1]
+hist(dist, main = 'Histogram of Stopping Distance', xlab = 'Stopping Distance')
+plot(speed, dist,main = 'Stopping Distance v Speed', xlab = 'Speed', ylab = 'Stopping Distance')
+```
+
+Plot Improvements
+
+-   Adding color to the plots would make them more visually appealing
+
+-   Instead of circles in the scatter plot I would like to be able to change it to dots to mark each of the points
+
+Tip
+
+For the modification I changed the main font of the document and changed it to Roboto.
