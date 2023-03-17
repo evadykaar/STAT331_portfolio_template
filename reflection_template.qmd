@@ -71,22 +71,24 @@ belowtwenty <- hiphop_clean |>
   group_by(word) |>
   summarize(mean_familiarity = mean(familiarity))
 
-belowtwenty |>
-  slice_max(mean_familiarity)
-  
-belowtwenty |>
-  slice_min(mean_familiarity)
-
 ```
 
 -   character -- specifically a string
--   Practice Act 5.2
+-   Lab 8 Step one: plurals (Practice act part of lab 8)
 
 ```{r wd-3-string}
 
-message %>% 
-  filter(str_detect(Word, pattern = "\\w")) %>% 
-  count() 
+pluralize_gift <- function(gift){
+
+gift <- case_when(str_detect(string = gift, pattern = "y$") ~
+            str_replace(string = gift, pattern = "y$", replace = "ies"), 
+            str_detect(string = gift, pattern = "oo") ~ 
+            str_replace(string = gift, pattern = "oo", replace = "ee"),
+            TRUE ~ str_c(gift, "s"))
+
+return(gift)
+
+}
 ```
 
 -   factor
@@ -192,7 +194,7 @@ right_join(prof_info, prof_course)
  # originally I used a full_join() in challenge 4 but I changed it to an inner_join() to show that I know how to use an inner_join() and I realized that this is normally a more severe method of joining data sets but because the data set I compiled included all the years and regions in the filtered avocado_clean() this did not change the data set from what the full_join() did.
 
 avocado_ca2 <- avocado_clean |>
-  filter(region == c("LosAngeles",
+  filter(region %in% c("LosAngeles",
                     "SanDiego",
                     "Sacramento",
                     "SanFrancisco")) |>
@@ -205,7 +207,7 @@ avocado_ca2 <- avocado_clean |>
 ```{r wd-5-full}
 
 avocado_ca2 <- avocado_clean |>
-  filter(region == c("LosAngeles",
+  filter(region %in% c("LosAngeles",
                     "SanDiego",
                     "Sacramento",
                     "SanFrancisco")) |>
@@ -243,7 +245,7 @@ avocado_clean <- avocado |>
 ```{r wd-7-long}
 
 avocado_ca2 <- avocado_clean |>
-  filter(region == c("LosAngeles",
+  filter(region %in% c("LosAngeles",
                     "SanDiego",
                     "Sacramento",
                     "SanFrancisco")) |>
@@ -253,8 +255,8 @@ avocado_ca2 <- avocado_clean |>
   group_by(region, Size, type) |>
   summarize(avg_amount = mean(amount)) |>
   group_by(region, type) |>
-  mutate(total = sum(avg_amount)) |>
-  mutate(prop = avg_amount/total)
+  mutate(total = sum(avg_amount), 
+         prop = avg_amount/total)
 ```
 
 -   `pivot_wider()`
@@ -263,18 +265,19 @@ avocado_ca2 <- avocado_clean |>
 ```{r wd-7-wide}
 
 avocado_ca <- avocado_clean |>
-  filter(region == c("LosAngeles",
+  filter(region %in% c("LosAngeles",
                     "SanDiego",
                     "Sacramento",
                     "SanFrancisco")
          ) |>
   group_by(region, type) |>
   summarize(
-    avg_price = mean(AveragePrice)
+    avg_price = mean(AveragePrice), .groups = "drop"
     ) |>
   pivot_wider(names_from = type, 
               values_from = avg_price) |>
   mutate(diff = organic - conventional)
+
 ```
 
 ## Reproducibility
@@ -283,7 +286,7 @@ avocado_ca <- avocado_clean |>
 
 I've done this in the following provided assignments:
 
-Lab 2, Lab, 3, Lab 4, Challenge 4
+Lab 2, Lab, 3, Lab 4, Challenge 4, Lab 8, Challenge 9
 
 **R-2: I can write well documented and tidy code.**
 
@@ -298,11 +301,6 @@ non_white_women <- hiphop_clean |>
   group_by(word) |>
   summarize(mean_familiarity = mean(familiarity))
 
-non_white_women |>
-  slice_max(mean_familiarity)
-  
-non_white_women |>
-  slice_min(mean_familiarity)
 ```
 
 -   Example 2
@@ -330,24 +328,38 @@ belowtwenty <- hiphop_clean |>
   group_by(word) |>
   summarize(mean_familiarity = mean(familiarity))
 
-belowtwenty |>
-  slice_max(mean_familiarity)
-  
-belowtwenty |>
-  slice_min(mean_familiarity)
 ```
 
 -   Example 2
--   Lab 4 Q4
+-   Lab 8 Step 2: Creating Sentences(Practice Act Part of Lab 8)
 
 ```{r r-3-2}
 
-avocado_clean <- avocado_clean |>
-  separate("Date", into = c("year", "month", "day"), sep = "-")
+make_phrase <- function(day, num_word, item, verb, adjective, location) {
   
-avocado_clean |>  
-  slice_max(`Total Volume`) |>
-  pull(month)
+  ## Step 1: Replace NAs with blank strings
+  verb <- str_replace_na(verb, "")
+  adjective <- str_replace_na(adjective, "")
+  location <- str_replace_na(location, "")
+  
+  ## Step 2: If the day is larger than 1, the items need pluralized! 
+  item <- case_when(
+    day > 1 ~ pluralize_gift(item),
+    TRUE ~ item
+  )
+  
+## Step 3: If the day is 1, you need to add an "a" or "an" before the gift
+  a <- case_when(
+    day == 1 & str_detect(string = item, pattern = "^aeiou") ~ "an",
+    day == 1 ~ "a",
+    TRUE ~ ""
+  )
+  num_word <- case_when(day == 1 ~ "",
+                        TRUE ~ num_word)
+
+  ## Step 4: Glue all of the pieces together to make a phrase!
+  return(glue("{a} {num_word} {adjective} {item} {verb} {location}"))
+}
 ```
 
 ## Data Visualization & Summarization
@@ -363,7 +375,8 @@ allison_f_lm |>
   broom::augment() |> 
   ggplot(mapping = aes(y = .resid, x = .fitted)) +
   geom_point(color = "navy") +
-  labs(x = "Fitted Values", y = "Residual Values", title = "Plotted Residuals vs Fitted values")
+  labs(x = "Fitted Values", y = "Residual Values", 
+       title = "Plotted Residuals vs Fitted values")
 
 ```
 
@@ -622,7 +635,7 @@ newhiphop_ethnic |>
 **DVS-6: I can create tables which make my summaries clear to the reader.**
 
 -   Example 1
-- Challenge 9 Q9
+-   Challenge 9 Q9
 
 ```{r dvs-6-1}
 
@@ -636,7 +649,7 @@ allen |>
 ```
 
 -   Example 2
-- Challenge 9 Q10
+-   Challenge 9 Q10
 
 ```{r dvs-6-2}
 
@@ -655,7 +668,7 @@ allen |>
 **DVS-7: I show creativity in my tables.**
 
 -   Example 1
-- Challenge 9 Q1
+-   Challenge 9 Q1
 
 ```{r dvs-7-1}
 
@@ -696,38 +709,20 @@ avocado <- avocado |>
 ```
 
 -   `across()`
--   Challenge 3
+-   Lab 7 Part one Q1
 
 ```{r pe-1-across}
 
-newhiphop <- hiphop_clean |>
-  select(c(sex, ethnic, intl:unclassifiable))
+fish |>
+  summarize(
+    across(.cols = trip:species, 
+          .fns = ~ sum(is.na(.x)))
+  )
 
-newhiphop_sex <- newhiphop |>
-  group_by(sex) |>
-  summarise(
-    across(
-      intl:unclassifiable, 
-      mean, 
-      na.rm = TRUE
-      )
-    )
-    
-newhiphop_sex <- newhiphop_sex |>
-  summarise(
-    abs(
-    across(
-      intl:unclassifiable,
-      diff, na.rm = TRUE
-    )
-  )
-  )
-newhiphop_sex |>
-  which.max()
 ```
 
 -   `map()` functions
-- Lab 8 step 4: using the functions
+-   Lab 8 step 4: using the functions
 
 ```{r pe-1-map-1}
 
@@ -741,17 +736,48 @@ song
 **PE-2: I can write functions to reduce repetition in my code.**
 
 -   Example 1
+- Lab 8 Step 3: Iteration
 
 ```{r pe2-1}
 
-# Have not learned yet
+sing_day <- function(dataset, num, phrase_col){
+  
+  # Step 1: Setup the intro line
+  # Hint: You need to convert a number (e.g., 1) to a word (e.g., first)
+  num_word <- ordinal(num)
+  
+  intro <- glue::glue("On the {num_word} day of Christmas, my true love sent to me")
+  
+  # Step 2: Sing the gift phrases
+
+    phrases <- dataset |>
+      pull( {{phrase_col}} )
+
+  lyrics <- str_flatten(phrases[num:1])
+  
+  ## put it together
+  return(glue::glue("{intro} {lyrics}"))
+
+
+}
 ```
 
 -   Example 2
+- Lab 7 Incorporating variables
 
 ```{r pe2-2}
 
-# Have not learned yet
+rescale_column <- function(data, variables) {
+  
+  stopifnot(is.data.frame(data))
+  
+  data <- data |>
+    mutate(across(.cols = {{variables}}, 
+                  ~ rescale_01(.x))
+                  )
+  
+  data
+}
 ```
 
 **PE-3:I can use iteration to reduce repetition in my code.**
@@ -760,13 +786,14 @@ song
 -   Challenge 3
 
 ```{r pe-3-across}
+# revised to use the new syntax of across
 
 newhiphop_ethnic <- newhiphop |>
   group_by(ethnic) |>
   summarise(
     across(
-      intl:unclassifiable, 
-      mean, 
+      .cols = intl:unclassifiable, 
+      .fns = ~ mean(.x), 
       na.rm = TRUE
       )
     )
@@ -775,8 +802,8 @@ newhiphop_ethnic <- newhiphop_ethnic |>
   summarise(
     abs(
     across(
-      intl:unclassifiable,
-      diff, na.rm = TRUE
+      .cols = intl:unclassifiable,
+      .fns = ~ diff(.x), na.rm = TRUE
     )
   )
   )
@@ -786,7 +813,7 @@ newhiphop_ethnic |>
 ```
 
 -   `map()` functions (Provide 2 Examples)
-- Practice Activity part of Lab 8 (Test your function)
+-   Practice Activity part of Lab 8 (Test your function)
 
 ```{r pe-3-map-1}
 
@@ -804,9 +831,13 @@ xmas2 <- xmas %>%
   )
 ```
 
+-   Lab 8: Step 4: Using your functions!
+
 ```{r pe-3-map-2}
 
-# Have not learned yet
+song <- map_chr(.x = 1:12, 
+               .f = ~ sing_day(dataset = xmas2, num = .x, phrase_col = Full.Phrase))
+
 ```
 
 **PE-4: I can use modern tools when carrying out my analysis.**
@@ -816,12 +847,14 @@ xmas2 <- xmas %>%
 
 ```{r pe-4-1}
 
+# revised to use the new syntax of across
+
 newhiphop_ethnic <- newhiphop |>
   group_by(ethnic) |>
   summarise(
     across(
-      intl:unclassifiable, 
-      mean, 
+      .cols = intl:unclassifiable, 
+      .fns = ~ mean(.x), 
       na.rm = TRUE
       )
     )
@@ -830,8 +863,8 @@ newhiphop_ethnic <- newhiphop_ethnic |>
   summarise(
     abs(
     across(
-      intl:unclassifiable,
-      diff, na.rm = TRUE
+      .cols = intl:unclassifiable,
+      .fns = ~ diff(.x), na.rm = TRUE
     )
   )
   )
@@ -867,7 +900,7 @@ ggplot(data = avocado_ca, mapping = aes(x = diff, y = region)) +
   geom_point() +
   labs(x = "California City", 
        y = "Price Difference($)",
-         title = "Organic v Conventional Avocado Price Difference by City")
+       title = "Organic v Conventional Avocado Price Difference by City")
 
 ```
 
@@ -901,26 +934,36 @@ sum(my_weights <4532)
 ```
 
 -   Example 2
+-   Practice Act 9.2 Warm up
 
 ```{r dsm-1-2}
 
-# Have not learned yet
+qunif(p = .95, min = 1.5, max = 3.5)
+
 ```
 
 **DSM-2: I can fit a linear regression and extract necessary summary measures.**
 
 -   Example 1
+- Lab 9 Q5
 
 ```{r dsm-2-1}
 
-# Have not learned yet
+allison_f_lm <- allison_f |>
+  group_by(Year) |>
+  summarize(Count = sum(Count)) |>
+  lm(Count ~ Year, data = _)
+
 ```
 
 -   Example 2
+- Practice Act 9.1
 
 ```{r dsm-2-2}
 
-# Have not learned yet
+animal_lm <- animal |>
+  lm(weight_after ~ weight_before, data = _)
+
 ```
 
 ## Revising My Thinking
