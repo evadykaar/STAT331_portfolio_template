@@ -97,7 +97,7 @@ return(gift)
 ```{r wd-3-factor}
 
 non_white_women <- hiphop_clean |>
-  filter(ethnic == "Non-White" & sex == "Female")|>
+  filter(ethnic == "non-white" & sex == "Female")|>
   mutate(familiarity = as.numeric(familiarity))|>
   group_by(word) |>
   summarize(mean_familiarity = mean(familiarity))
@@ -176,29 +176,26 @@ suspects <- suspects %>%
 
 ```{r wd-5-left}
 
+left_join(prof_course, prof_info)
 
 ```
 
 -   `right_join()`
--   Preview Act 4.3 Q1
+-   Preview Act 4.3
 
 ```{r wd-5-right}
+# To show that know how to use a left join I decided that at the end of the preview act 4.3 I wanted a table that showed all the professors, their undergrad and grad schools, and also what statistics classes the respective professors teach. To do this I used a left join to join all of this information by the professors name.
 
-right_join(prof_info, prof_course)
+left_join(prof_course, prof_info)
 ```
 
 -   `inner_join()`
--   challenge 4
+-   Preview Act 4.3 Q1
 
 ```{r wd-5-inner}
- # originally I used a full_join() in challenge 4 but I changed it to an inner_join() to show that I know how to use an inner_join() and I realized that this is normally a more severe method of joining data sets but because the data set I compiled included all the years and regions in the filtered avocado_clean() this did not change the data set from what the full_join() did.
+# Revised for portfolio 
 
-avocado_ca2 <- avocado_clean |>
-  filter(region %in% c("LosAngeles",
-                    "SanDiego",
-                    "Sacramento",
-                    "SanFrancisco")) |>
-  inner_join(house_price, by = c("region", "year"))
+inner_join(prof_info, prof_course)
 ```
 
 -   `full_join()`
@@ -296,7 +293,7 @@ Lab 2, Lab, 3, Lab 4, Challenge 4, Lab 8, Challenge 9
 ```{r r-2-1}
 
 non_white_women <- hiphop_clean |>
-  filter(ethnic == "Non-White" & sex == "Female")|>
+  filter(ethnic == "non-white" & sex == "Female")|>
   mutate(familiarity = as.numeric(familiarity))|>
   group_by(word) |>
   summarize(mean_familiarity = mean(familiarity))
@@ -689,10 +686,24 @@ names |>
 ```
 
 -   Example 2
+- Lab 4 Q6
 
 ```{r dvs-7-2}
+# Revised to add gt() to make the table more creative
 
-#Have not learned yet
+avocado_ca |>
+  gt() |>
+   tab_header(
+    title = md("**Avocado Price Differences**"), 
+    ) |>
+    cols_label(region = "Region", 
+             conventional = "Conventional", 
+             organic = "Organic",
+             diff = "Difference") |>
+     data_color(columns = region,
+               colors = "pink") |>
+     opt_row_striping(data = _, row_striping = TRUE)
+
 ```
 
 ## Program Efficiency
@@ -970,13 +981,13 @@ animal_lm <- animal |>
 
 <!-- How did you revise your thinking throughout the course? How did you revise your thinking on the code examples you have provided in your portfolio? -->
 
-For the previous weeks I have taken the feedback given to me on the lab and challenges and resubmitted it for a complete if any questions have an incomplete on it. I also have re-submitted the week 3, 4, and 5 labs and I just have one question to correct on lab 3. I have looked over the feedback I have received and incorporated it into future labs at any points possible to make sure I do not make the same mistake again. For example, before resubmitting Lab 4 I changed my bar plot to a Cleveland dot plot because that data was differences not counts. I also read the feedback from the peer reviews and have taken what they have said into account. I think that I have revised my thinking on the code examples that I have provided in my portfolio because most of the examples I figured out on my second try and I needed to shift my way of thinking to get my code to be as efficient and tidy as it can be.
+For the previous weeks I have taken the feedback given to me on the lab and challenges and resubmitted it for a complete if any questions have an incomplete on it. I also have re-submitted the week 3, 4, 5, and 7 labs and if I do not have a complete to that lab it is only for 1 or 2 questions. I have looked over the feedback I have received and incorporated it into future labs at any points possible to make sure I do not make the same mistake again. For example, before resubmitting Lab 4 I changed my bar plot to a Cleveland dot plot because that data was differences not counts. I also read the feedback from the peer reviews and have taken what they have said into account. I think that I have revised my thinking on the code examples that I have provided in my portfolio because most of the examples I figured out on my second try and I needed to shift my way of thinking to get my code to be as efficient and tidy as it can be.
 
 ## Extending My Thinking
 
 <!-- How did you extended your thinking throughout the course? How did you extend your thinking on the code examples you have provided in your portfolio? -->
 
-For week 1 and week 2 I do not think I went above and beyond with external sources because it was not until week 3 that we as a class set up the expectations for what an A is in this class. For Lab 3 I did not make use of external research so I knew for lab 4 I really needed to go above and beyond and use external research, which is exactly what I did. I first brought back what I learned in challenge 1 and changed the font of the entire html file to "garet", and I did this for both lab 4 and challenge 4. For lab 4 I also used external research to find what the avocado code names mean to clean my data, stopped my graph from using scientific notation because I thought it made my graph look more tidy, did outside research to figure out why my bar chart was not running, I changed the order of my legend, the color of my graph, and staggered the labels on my axis so they did not overlap. For challenge 4 I found data online from Zillow and created an excel file from this data to join together with the avocado data. In addition I used density plots which was extending my thinking from challenge 2. I think that I have demonstrated a commitment to continued learning because I have added in many extra pieces to my lab 4 and challenge 4 to make up for not extending my thinking as much as I could have in lab 3. While extending my thinking it required me to learn more about different functions. For lab 5 I extended my thinking because I did outside research on the forcats library and how to use different functions like fct_reorder(), fct_relevel(), and fct_collapse(). Many of the examples I included in this portfolio are from code chunks where I extended my thinking.
+For week 1 and week 2 I do not think I went above and beyond with external sources because it was not until week 3 that we as a class set up the expectations for what an A is in this class. For Lab 3 I did not make use of external research so I knew for lab 4 I really needed to go above and beyond and use external research, which is exactly what I did. I first brought back what I learned in challenge 1 and changed the font of the entire html file to "garet", and I did this for both lab 4 and challenge 4. For lab 4 I also used external research to find what the avocado code names mean to clean my data, stopped my graph from using scientific notation because I thought it made my graph look more tidy, did outside research to figure out why my bar chart was not running, I changed the order of my legend, the color of my graph, and staggered the labels on my axis so they did not overlap. For challenge 4 I found data online from Zillow and created an excel file from this data to join together with the avocado data. In addition I used density plots which was extending my thinking from challenge 2. I think that I have demonstrated a commitment to continued learning because I have added in many extra pieces to my lab 4 and challenge 4 to make up for not extending my thinking as much as I could have in lab 3. While extending my thinking it required me to learn more about different functions. For lab 5 I extended my thinking because I did outside research on the forcats library and how to use different functions like fct_reorder(), fct_relevel(), and fct_collapse(). In lab 7 I staggered my labels, and in lab 8 I learned more about the stringr package to learn how to delete the white spaces from in between my strings. In challenge 8 I learned how to use the cat() function to put spaces in between the different verses. In challenge 9 I extended my thinking by adding colors to different parts of my ggplots and by exploring the gt() and the kable() functions. Many of the examples I included in this portfolio are from code chunks where I extended my thinking.
 
 ## Peer Support & Collaboration
 
