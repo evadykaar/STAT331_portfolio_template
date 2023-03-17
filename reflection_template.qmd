@@ -19,7 +19,8 @@ execute:
 
 **WD-1: I can import data from a *variety* of formats (e.g., csv, xlsx, txt, etc.).**
 
--   `csv: Lab 2 Q1`
+-   `csv`
+-   `Lab 2 Q1`
 
 ```{r wd-1-csv}
 
@@ -173,20 +174,21 @@ suspects <- suspects %>%
 **WD-5: I can use mutating joins to combine multiple dataframes.**
 
 -   `left_join()`
+-   Preview Act 4.3
 
 ```{r wd-5-left}
+# To show that know how to use a left join I decided that at the end of the preview act 4.3 I wanted a table that showed all the professors, their undergrad and grad schools, and also what statistics classes the respective professors teach. To do this I used a left join to join all of this information by the professors name.
 
 left_join(prof_course, prof_info)
 
 ```
 
 -   `right_join()`
--   Preview Act 4.3
+-   Preview Act 4.3 Q1
 
 ```{r wd-5-right}
-# To show that know how to use a left join I decided that at the end of the preview act 4.3 I wanted a table that showed all the professors, their undergrad and grad schools, and also what statistics classes the respective professors teach. To do this I used a left join to join all of this information by the professors name.
 
-left_join(prof_course, prof_info)
+right_join(prof_info, prof_course)
 ```
 
 -   `inner_join()`
@@ -686,7 +688,7 @@ names |>
 ```
 
 -   Example 2
-- Lab 4 Q6
+-   Lab 4 Q6
 
 ```{r dvs-7-2}
 # Revised to add gt() to make the table more creative
@@ -747,7 +749,7 @@ song
 **PE-2: I can write functions to reduce repetition in my code.**
 
 -   Example 1
-- Lab 8 Step 3: Iteration
+-   Lab 8 Step 3: Iteration
 
 ```{r pe2-1}
 
@@ -774,7 +776,7 @@ sing_day <- function(dataset, num, phrase_col){
 ```
 
 -   Example 2
-- Lab 7 Incorporating variables
+-   Lab 7 Incorporating variables
 
 ```{r pe2-2}
 
@@ -956,7 +958,7 @@ qunif(p = .95, min = 1.5, max = 3.5)
 **DSM-2: I can fit a linear regression and extract necessary summary measures.**
 
 -   Example 1
-- Lab 9 Q5
+-   Lab 9 Q5
 
 ```{r dsm-2-1}
 
@@ -968,12 +970,19 @@ allison_f_lm <- allison_f |>
 ```
 
 -   Example 2
-- Practice Act 9.1
+-   Challenge 9 Q4
 
 ```{r dsm-2-2}
 
-animal_lm <- animal |>
-  lm(weight_after ~ weight_before, data = _)
+allison_f |>
+  group_by(Year) |>
+  summarize(Count = sum(Count), .groups = "drop") |>
+  ggplot(mapping = aes(x = Year, y = Count)) +
+  geom_point(color = "darkorange") +
+  geom_smooth(method = "lm") +
+  scale_x_continuous(breaks = c("1997" : "2014")) +
+  labs(x = "Year", y = "Count",
+       title = "Total Number of Female Allisons Born Each Year")
 
 ```
 
