@@ -1,0 +1,175 @@
+---
+title: "Lab 9"
+author: "Eva Dykaar"
+format: 
+  html: 
+    self-contained: true
+    code-tools: true
+    code-fold: true
+editor: visual
+execute: 
+  echo: true
+  include: true
+  message: false
+  warning: false
+---
+
+```{r}
+# Loading in packages
+
+library(tidyverse)
+library(ggplot2)
+```
+
+```{r}
+# Load in data set
+
+names <- read_csv(here::here("Week 9", "StateNames_A.csv"))
+```
+
+1)  Make a summary table of the number of babies named "Allison" for each state and the sex of the baby. Specifically, the table should have the following qualities:
+
+-   each state should be its own row
+-   and each sex should have its own column
+-   if there were no babies born for that combination of state & sex there should be a 0 (not an NA)
+
+```{r}
+# Renaming column 
+names <- names |>
+  rename(Sex = Gender)
+
+```
+
+```{r}
+# Revised %in% to == because its a single value
+
+names |>
+  filter(Name == "Allison") |>
+  group_by(State, Sex) |>
+  summarize(Count = sum(Count), .groups = "drop") |>
+  pivot_wider(names_from = Sex, values_from = Count, values_fill = 0)
+```
+
+2)  You should have seen in the table above that "Allison" is a name given overwhelmingly to babies assigned "female" at birth. So, create a new dataset named allison_f which contains only the babies assigned Female at birth.
+
+```{r}
+# Revised %in% to == because its a single value
+
+allison_f <- names |>
+  filter(Name == "Allison", Sex == "F")
+  
+```
+
+3)  Make a visualization showing how the popularity of the name "Allison" has changed over the years. To be clear, each year should have one observation--the total number of Allisons born that year.
+
+```{r}
+#Revised so the graph is a line graph an not a scatter plot and took out the y axis so people do not have to tilt their heads to read this graph
+
+allison_f |>
+  group_by(Year) |>
+  summarize(Count = sum(Count), .groups = "drop") |>
+  ggplot(mapping = aes(x = Year, y = Count)) +
+  geom_line() +
+  scale_x_continuous(breaks = c("1997" : "2014")) +
+  labs(x = "Year", y = "", 
+       title = "Total Number of Female Allisons Born Each Year")
+  
+
+```
+
+4)  Fit a linear model with the year as the explanatory variable, and the number of Allisons as the response. Similar to #3, each year should have one observation--the total number of Allisons born that year.
+
+```{r}
+
+allison_f |>
+  group_by(Year) |>
+  summarize(Count = sum(Count), .groups = "drop") |>
+  ggplot(mapping = aes(x = Year, y = Count)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  scale_x_continuous(breaks = c("1997" : "2014")) +
+  labs(x = "Year", y = "Count",
+       title = "Total Number of Female Allisons Born Each Year")
+
+```
+
+5)  Write out the estimated regression equation.
+
+```{r}
+allison_f_lm <- allison_f |>
+  group_by(Year) |>
+  summarize(Count = sum(Count)) |>
+  lm(Count ~ Year, data = _)
+
+allison_f_lm
+```
+
+The regression equation is: Yhat = 209689.8 - 101.5 * X
+
+6)  Plot the residuals of the model, that is, the actual values minus the predicted values. Comment on the residuals - do you see any patterns?
+
+```{r}
+
+allison_f_lm |> 
+  broom::augment() |> 
+  ggplot(mapping = aes(y = .resid, x = .fitted)) +
+  geom_point() +
+  labs(x = "Fitted Values", 
+       y = "Residual Values", 
+       title = "Plotted Residuals vs Fitted values")
+
+```
+
+I see two patterns is the residuals, one is a "U" shape on the left and there is another grouping of residuals on the right.
+
+7)  What do you conclude from this model? Is my name not cool anymore?
+
+From this model I have concluded that the amount of females named Allison has decreased since 1997 however there are a couple years, 2008 and 2009, where the number of Allisons increased. I would say that the popularity of the name Allison has decreased but it is still a popular name.
+
+8)  Narrow the A name data set (downloaded previously) down to only male-assigned babies named "Allan", "Alan", or "Allen". Make a plot comparing the popularity of these names over time.
+
+```{r}
+
+allen <- names |>
+  filter(Name %in% c("Allan", "Alan", "Allen"), Sex == "M")
+
+allen |>
+  group_by(Year, Name) |>
+  summarize(Count = sum(Count), .groups = "drop") |>
+  ggplot(mapping = aes(x = Year, y = Count)) +
+  geom_line() +
+  facet_wrap(~ Name) +
+  labs(title = "Number of Alan, Allan, or Allen's Born per Year",
+       y = " ")
+
+```
+
+9)  In California, Allan's spelling of his name is the least common of the three but perhaps it's not such an unusual name for his home state of Pennsylvania. Compute the total number of babies born with each spelling of "Allan" in the year 2000, in Pennsylvania and in California. Specifically, the table should have the following qualities:
+
+-   each spelling should be its own column
+-   each state should have its own row
+-   a 0 (not an NA) should be used to represent locations where there were no instances of these names
+
+```{r}
+
+allen |>
+  filter(Year == "2000", State %in% c("PA", "CA")) |>
+  pivot_wider(names_from = Name, values_from = Count, values_fill = 0) |>
+  select(State, Alan, Allen, Allan)
+  
+
+```
+
+10) Convert your total counts to overall percents. That is, what was the percent breakdown between the three spellings in CA? What about in PA?
+
+```{r}
+
+allen |> 
+  filter(Year == "2000", State %in% c("PA", "CA")) |>
+  mutate(prop = Count / sum(Count)
+         ) |>
+  select(Sex, State, Name, prop) |>
+  pivot_wider(names_from = Name, 
+              values_from = prop, values_fill = 0)
+
+```

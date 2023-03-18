@@ -1,0 +1,212 @@
+---
+title: "Lab 4"
+author: "Eva Dykaar"
+format: 
+  html:
+    self-contained: true
+    code-tools: true
+    code-fold: true
+execute:
+  echo: true
+  error: true
+  message: false
+  warning: false
+mainfont: garet
+---
+
+```{r}
+# loading in packages and importing data
+#| message: false
+
+library(tidyverse)
+library(here)
+avocado <- read_csv(here("Week 4", "avocado.csv"))
+```
+
+### Question 1
+This data set contains information on Hass avocados based on the date, average price, type (conventional or organic), year, region, total number of avocados sold, and the size of the avocado. This data is from the Hass Avocado Board website from May of 2018. This data comes from retailers' cash registers. The data is from the following places: grocery, mass, club, drug, dollar, and military. 
+
+### Question 2
+```{r}
+# cleaning the data: Renaming columns
+# source for avocado size code: https://loveonetoday.com/how-to/identify-hass-avocados/
+
+avocado <- avocado |>
+  rename("Small/medium" = "4046", "Large" = "4225", "Xlarge" = "4770")
+
+```
+
+```{r}
+# Cleaning the data: Region column
+
+total <- tibble(region = "TotalUS")
+
+regions <- tibble(region = c("West", 
+                             "GreatLakes", 
+                             "Midsouth",
+                             "Northeast",
+                             "SouthCentral",
+                             "Southeast",
+                             "WestTexNewMexico",
+                             "greatplains"))
+
+states <- tibble(region = c("California", 
+                            "NorthernNewEngland",
+                            "SouthCarolina",
+                            "NewYork"))
+
+avocado_regions <- avocado |>
+  semi_join(regions, by = "region")
+
+avocado_states <- avocado |>
+  semi_join(states, by = "region")
+
+avocado_clean <- avocado |>
+  anti_join(regions, by = "region") |>
+  anti_join(states, by = "region") |>
+  anti_join(total, by = "region")
+
+```
+
+### Question 3
+```{r}
+
+avocado_regions |>
+  filter(type == "organic", year == "2017")|>
+  group_by(region) |>
+  summarize(
+    total = sum(`Small/medium`)
+  ) |>
+  slice_max(total) |>
+  pull(region)
+  
+```
+The region that sold the most organic, small Hass avocados in 2017 was the West.
+
+### Question 4
+```{r}
+
+avocado_clean <- avocado_clean |>
+  separate("Date", into = c("year", "month", "day"), sep = "-")
+  
+avocado_clean |>  
+  slice_max(`Total Volume`) |>
+  pull(month)
+
+```
+February was the month with the highest volume of avocado sales.
+
+
+### Question 5
+```{r}
+# Source for how I stopped scientific notation: https://stackoverflow.com/questions/25946047/how-to-prevent-scientific-notation-in-r
+
+options(scipen = 999)
+
+top_5 <- avocado_clean |>
+  group_by(region) |>
+  summarize(avg_vol = mean(`Total Volume`)) |>
+  slice_max(avg_vol, n = 5)
+
+avocado_clean |>
+  semi_join(top_5, by = "region") |>
+  ggplot(mapping = aes(x = `Total Volume`,
+                                   y = region)) +
+  geom_boxplot(fill = "lightpink") +
+  labs(x = "Total Volume", y = "Metro Area Regions", title = "Total Avocado Volume by Region")
+  
+
+```
+
+### Question 6
+```{r}
+# source for stat = "identity" part of ggplot2: https://r-graph-gallery.com/218-basic-barplots-with-ggplot2.html
+# revised to add gt() to the table
+# source for gt() additions: https://gt.rstudio.com/articles/intro-creating-gt-tables.html, https://www.liamdbailey.com/post/making-beautiful-tables-with-gt/
+
+avocado_ca <- avocado_clean |>
+  filter(region %in% c("LosAngeles",
+                    "SanDiego",
+                    "Sacramento",
+                    "SanFrancisco")
+         ) |>
+  group_by(region, type) |>
+  summarize(
+    avg_price = mean(AveragePrice), .groups = "drop"
+    ) |>
+  pivot_wider(names_from = type, 
+              values_from = avg_price) |>
+  mutate(diff = organic - conventional)
+
+avocado_ca |>
+  gt() |>
+   tab_header(
+    title = md("**Avocado Price Differences**"), 
+    ) |>
+    cols_label(region = "Region", 
+             conventional = "Conventional", 
+             organic = "Organic",
+             diff = "Difference") |>
+     data_color(columns = region,
+               colors = "pink") |>
+     opt_row_striping(data = _, row_striping = TRUE)
+     
+  
+
+
+ggplot(data = avocado_ca, mapping = aes(x = diff, y = region)) +
+  geom_segment(aes(xend = 0, yend = region)) +
+  geom_point() +
+  labs(x = "California City", 
+       y = "Price Difference($)",
+       title = "Organic v Conventional Avocado Price Difference by City")
+
+```
+The city with the greatest difference in price between organic and conventional avocados is San Francisco with a $0.7874 difference.
+
+### Question 7
+```{r}
+# Source for how I changed order of the legend: https://www.geeksforgeeks.org/change-display-order-of-ggplot2-plot-legend-in-r/
+
+# Source for changing the color of the graph: https://www.statology.org/ggplot-change-color-of-stacked-bars/#:~:text=You%20can%20use%20the%20following,pink'%2C%20...))
+
+# Source for staggering the labels on the x axis: https://ggplot2.tidyverse.org/reference/guide_axis.html
+
+avocado_ca2 <- avocado_clean |>
+  filter(region %in% c("LosAngeles",
+                    "SanDiego",
+                    "Sacramento",
+                    "SanFrancisco")) |>
+  pivot_longer(cols = c(`Small/medium`, Large, Xlarge),
+               names_to = "Size",
+               values_to = "amount") |>
+  group_by(region, Size, type) |>
+  summarize(avg_amount = mean(amount)) |>
+  group_by(region, type) |>
+  mutate(total = sum(avg_amount), 
+         prop = avg_amount/total)
+
+ggplot(data = avocado_ca2,
+       mapping = aes(x = region,
+                     y = prop, 
+                     fill = factor(Size,
+                            levels = c("Small/medium",
+                                       "Large",
+                                       "Xlarge")))) +
+  facet_wrap(~type) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c("#a6cee3",
+                               "#1f78b4", 
+                               "#b2df8a")) +
+  scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
+  labs(x = "Region of CA",
+       y = "Proportion of Mean Avocados Sold", 
+       title = "Size of Avocados Sold by City",
+       fill = "Size")
+
+```
+
+### Re-submission Reflection
+
+The first way my thinking changed is I realized that I needed to add more information about where the avocado data is from and how the data was collected. For question 5 I realized that if I used a semi_join it would give me the same output that I had before, but a more efficient way to get this outcome. For question 6 instead of using == I changed it to %in% which has a more reliable result when filtering through values. I also deleted summary() so all of the data set would print out and not just the summary(). I also changed the bar plots to Cleveland dot plots because it is displaying the difference of organic minus conventional avocados.
+
