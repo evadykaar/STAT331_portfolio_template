@@ -3,3 +3,15 @@ title: "Lightening Round Essays"
 format: html
 editor: visual
 ---
+
+prompt: Lightning round: Answer each of the following questions with one sentence including a brief explanation.
+
+1)  Finish the sentence with another student's name: If Chloe Feehan doesn't earn an A, then nobody should, because she has worked very hard to understand how to code in R and will persist on a question until she figures out the answer and her hard work has lead her to understand the learning targets in class while she also supports and helps her peers.
+
+2)  What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why. The most difficult part of the class for me was strings because there was a lot of new syntax that I had to learn which made figuring out the labs and challenges difficult.
+
+3)  What was the easiest part of the class for you? Explain why. The easiest part of the class for me was learning how to spice up tables because I like making visualizations aesthetically pleasing so I had fun learning about different ways to make my tables more interesting.
+
+4)  What part of the class surprised or interested you the most? Explain why. The part of the class I was surprised about is the autonomy I had while choosing how I wanted to clean up my data because the previous programming class I took a lot of the problems were partially set up beforehand but I think having the autonomy it helped me learn how to clean a data set better.
+
+5)  Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning. One piece of advice I would give to a stat 331 student is spend time trying to understand the original functions we learn at the beginning of the course like ggplot, mutate, summarize, and group_by because these functions are so important to the whole class and understanding them and their syntax is crucial.
